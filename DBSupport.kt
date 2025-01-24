@@ -55,7 +55,7 @@ class DBSupport(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         onCreate(db)
     }
 
-    // Insert Data into Income Table
+
     fun insertIncome(category: String, amount: Double, date: String): Long {
         val db = this.writableDatabase
         val values = ContentValues()
@@ -65,7 +65,7 @@ class DBSupport(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         return db.insert(TABLE_INCOME, null, values)
     }
 
-    // Insert Data into Expenses Table
+
     fun insertExpense(category: String, amount: Double, date: String): Long {
         val db = this.writableDatabase
         val values = ContentValues()
@@ -75,7 +75,7 @@ class DBSupport(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         return db.insert(TABLE_EXPENSES, null, values)
     }
 
-    // Fetch Data from Income Table
+
     fun getIncome(): List<Map<String, Any>> {
         val db = this.readableDatabase
         val cursor = db.rawQuery("SELECT * FROM $TABLE_INCOME", null)
@@ -94,7 +94,7 @@ class DBSupport(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         return result
     }
 
-    // Fetch Data from Expenses Table
+
     fun getExpenses(): List<Map<String, Any>> {
         val db = this.readableDatabase
         val cursor = db.rawQuery("SELECT * FROM $TABLE_EXPENSES", null)
@@ -112,4 +112,12 @@ class DBSupport(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         cursor.close()
         return result
     }
+
+    fun clearAllData() {
+        val db = writableDatabase
+        db.execSQL("DELETE FROM Expenses")
+        db.execSQL("DELETE FROM Income")
+        db.close()
+    }
+
 }

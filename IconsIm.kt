@@ -22,6 +22,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.text.input.KeyboardType
+
 
 data class IconsWithName(
     val name: String,
@@ -43,6 +55,9 @@ fun IconsRow(iconsList: List<IconsWithName>, modifier: Modifier = Modifier) {
 
 @Composable
 fun IconCard(item: IconsWithName, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .width(100.dp)
@@ -55,7 +70,8 @@ fun IconCard(item: IconsWithName, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .size(60.dp)
                 .clip(CircleShape)
-                .background(color = Color.Black),
+                .background(color = Color.DarkGray)
+                .clickable { showDialog = true },
             contentScale = ContentScale.Crop
         )
         Text(
@@ -65,4 +81,81 @@ fun IconCard(item: IconsWithName, modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center
         )
     }
+
+    if (showDialog) {
+        InputDialog(
+            category = item.name,
+            onDismiss = { showDialog = false },
+            onSave = { amount, date ->
+                if (item.name in listOf(
+                        "Salary", "Deposits", "Bonds", "Stocks",
+                        "Rental", "P2P", "Market"
+                    )
+                ) {
+                    insertIncomeToDB(context, item.name, amount, date)
+                } else {
+                    insertExpenseToDB(context, item.name, amount, date)
+                }
+                showDialog = false
+            }
+        )
+    }
+}
+
+
+@Composable
+fun InputDialog(
+    category: String,
+    onDismiss: () -> Unit,
+    onSave: (amount: Double, date: String) -> Unit
+) {
+    var amount by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Add Entry for $category")
+        },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = amount,
+                    onValueChange = {
+                        if (it.all { char -> char.isDigit() || char in listOf('-', '/', '+', '.', ',') }) {
+                            amount = it
+                        }
+                    },
+                    label = { Text("Amount") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = date,
+                    onValueChange = {
+                        if (it.all { char -> char.isDigit() || char in listOf('-', '/', '+', '.', ',') }) {
+                            date = it
+                        }
+                    },
+                    label = { Text("Date (YYYY-MM-DD)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                if (amount.isNotEmpty() && date.isNotEmpty()) {
+                    onSave(amount.toDouble(), date)
+                }
+            }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

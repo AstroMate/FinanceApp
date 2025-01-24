@@ -15,23 +15,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import android.content.Context
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.*
+
 
 @Composable
 fun IncomeScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val db = DBSupport(context)
 
-    // Example: Insert data (optional, for testing)
-    db.insertIncome("Paycheck", 1000.0, "2025-01-17")
 
-    // Fetch data from the database
-    val incomeList = db.getIncome()
+    var incomeList by remember { mutableStateOf(db.getIncome()) }
 
-    val navController = rememberNavController()
+
+    val refreshIncomeList: () -> Unit = {
+        incomeList = db.getIncome()
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(500)
+            refreshIncomeList()
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -44,11 +53,11 @@ fun IncomeScreen(modifier: Modifier = Modifier) {
             IncomeCategory2()
             ButtonRow()
 
-            // Pass incomeList to IncomeList
             IncomeList(incomeData = incomeList)
         }
     }
 }
+
 
 
 @Composable
@@ -65,10 +74,10 @@ fun IncomePlot(modifier: Modifier = Modifier) {
 @Composable
 fun IncomeCategory() {
     val items = listOf(
-        IconsWithName(name = "Aaaa", iconRes = R.drawable.home),
-        IconsWithName(name = "bbbb", iconRes = R.drawable.home),
-        IconsWithName(name = "cccc", iconRes = R.drawable.home),
-        IconsWithName(name = "ddddd", iconRes = R.drawable.home)
+        IconsWithName(name = "Salary", iconRes = R.drawable.home),
+        IconsWithName(name = "Deposits", iconRes = R.drawable.home),
+        IconsWithName(name = "Bonds", iconRes = R.drawable.home),
+        IconsWithName(name = "Stocks", iconRes = R.drawable.home)
     )
     IconsRow(iconsList = items)
 }
@@ -77,10 +86,9 @@ fun IncomeCategory() {
 @Composable
 fun IncomeCategory2() {
     val items = listOf(
-        IconsWithName(name = "Paycheck", iconRes = R.drawable.home),
-        IconsWithName(name = "Investments", iconRes = R.drawable.home),
-        IconsWithName(name = "Gifts", iconRes = R.drawable.home),
-        IconsWithName(name = "Stealing", iconRes = R.drawable.home)
+        IconsWithName(name = "Rental", iconRes = R.drawable.home),
+        IconsWithName(name = "P2P", iconRes = R.drawable.home),
+        IconsWithName(name = "Market", iconRes = R.drawable.home),
     )
     IconsRow(iconsList = items)
 }
@@ -100,10 +108,10 @@ fun IncomeList(modifier: Modifier = Modifier, incomeData: List<Map<String, Any>>
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.Top,
             ) {
-                Text("ID")
-                Text("Category")
-                Text("Money")
-                Text("Date")
+                Text("ID", fontWeight = FontWeight.Bold)
+                Text("Category", fontWeight = FontWeight.Bold)
+                Text("Money", fontWeight = FontWeight.Bold)
+                Text("Date", fontWeight = FontWeight.Bold)
             }
             for (item in incomeData) {
                 Row(
