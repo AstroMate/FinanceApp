@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,6 +22,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.*
+import androidx.compose.ui.unit.sp
+import com.example.tryingtodo.ui.theme.FullBlack
 
 
 @Composable
@@ -26,9 +31,8 @@ fun IncomeScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val db = DBSupport(context)
 
-
     var incomeList by remember { mutableStateOf(db.getIncome()) }
-
+    //db.clearAllData()
 
     val refreshIncomeList: () -> Unit = {
         incomeList = db.getIncome()
@@ -41,7 +45,11 @@ fun IncomeScreen(modifier: Modifier = Modifier) {
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = FullBlack)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -51,11 +59,37 @@ fun IncomeScreen(modifier: Modifier = Modifier) {
             IncomePlot()
             IncomeCategory()
             IncomeCategory2()
-            ButtonRow()
+            //ButtonRow()
+           //populateIncomeData(dbSupport = db)
 
             IncomeList(incomeData = incomeList)
         }
     }
+}
+
+fun populateIncomeData(dbSupport: DBSupport) {
+    val incomeCategories = listOf(
+        "Salary", "Deposits", "Bonds", "Stocks", "Rental", "P2P", "Market"
+    )
+    val random = java.util.Random()
+
+    val data = List(5) {
+        val category = incomeCategories[random.nextInt(incomeCategories.size)]
+        val amount = 18000 + random.nextInt(5000)
+        val month = random.nextInt(12) + 1
+        val day = random.nextInt(28) + 1
+
+        // Ensure month and day have leading zeros if between 1-9
+        val date = String.format("2025-%02d-%02d", month, day)
+
+        Triple(category, amount.toDouble(), date)
+    }
+
+    data.forEach { (category, amount, date) ->
+        dbSupport.insertIncome(category, amount, date)
+    }
+
+    println("Inserted ${data.size} rows into Income table.")
 }
 
 
@@ -95,36 +129,97 @@ fun IncomeCategory2() {
 
 @Composable
 fun IncomeList(modifier: Modifier = Modifier, incomeData: List<Map<String, Any>>) {
+    val headerSize = 24.sp
+    val bodySize = 16.sp
+
     Box(
         modifier
-            .fillMaxWidth(0.95f)
-            .padding(start = 15.dp, top = 15.dp)
-            .height(200.dp)
-            .background(color = Color.LightGray, shape = RectangleShape)
+            .fillMaxWidth(1f)
+            .padding(start = 10.dp, top = 15.dp, end = 10.dp)
+            .height(700.dp)
+            .background(color = FullBlack, shape = RectangleShape)
     ) {
         Column {
+
             Row(
-                modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .width(400.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.Top,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("ID", fontWeight = FontWeight.Bold)
-                Text("Category", fontWeight = FontWeight.Bold)
-                Text("Money", fontWeight = FontWeight.Bold)
-                Text("Date", fontWeight = FontWeight.Bold)
+                Text(
+                    "ID",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = headerSize,
+                    color = Color.White
+                )
+                Text(
+                    "Category",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = headerSize,
+                    color = Color.White
+                )
+                Text(
+                    "Money",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = headerSize,
+                    color = Color.White
+                )
+                Text(
+                    "Date",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = headerSize,
+                    color = Color.White
+                )
             }
-            for (item in incomeData) {
-                Row(
-                    modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Text(item["id"].toString())
-                    Text(item["category"].toString())
-                    Text(item["amount"].toString())
-                    Text(item["date"].toString())
+
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(incomeData) { item ->
+                    Row(
+                        modifier = Modifier
+                            .width(400.dp)
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            item["id"].toString(),
+                            modifier.padding(start = 35.dp),
+                            color = Color.White,
+                            fontSize = bodySize,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            item["category"].toString(),
+                            modifier.padding(start = 25.dp),
+                            color = Color.White,
+                            fontSize = bodySize,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            item["amount"].toString(),
+                            modifier.padding(start = 35.dp),
+                            color = Color.White,
+                            fontSize = bodySize,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            item["date"].toString(),
+                            modifier.padding(end = 10.dp),
+                            color = Color.White,
+                            fontSize = bodySize,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
     }
 }
+
 

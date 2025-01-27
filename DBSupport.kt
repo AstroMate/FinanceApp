@@ -115,9 +115,43 @@ class DBSupport(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
 
     fun clearAllData() {
         val db = writableDatabase
-        db.execSQL("DELETE FROM Expenses")
-        db.execSQL("DELETE FROM Income")
+        db.execSQL("DELETE FROM $TABLE_EXPENSES")
+        db.execSQL("DELETE FROM $TABLE_INCOME")
+
+        db.execSQL("DELETE FROM sqlite_sequence WHERE name='$TABLE_EXPENSES'")
+        db.execSQL("DELETE FROM sqlite_sequence WHERE name='$TABLE_INCOME'")
         db.close()
+    }
+
+
+    fun getExpensesByCategory(): Map<String, Int> {
+        val data = mutableMapOf<String, Int>()
+        val query = "SELECT category, SUM(amount) FROM expenses GROUP BY category"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+        while (cursor.moveToNext()) {
+            val category = cursor.getString(0)
+            val amount = cursor.getInt(1)
+            data[category] = amount
+        }
+        cursor.close()
+        db.close()
+        return data
+    }
+
+    fun getIncomeByCategory(): Map<String, Int> {
+        val data = mutableMapOf<String, Int>()
+        val query = "SELECT category, SUM(amount) FROM income GROUP BY category"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+        while (cursor.moveToNext()) {
+            val category = cursor.getString(0)
+            val amount = cursor.getInt(1)
+            data[category] = amount
+        }
+        cursor.close()
+        db.close()
+        return data
     }
 
 }

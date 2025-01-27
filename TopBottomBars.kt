@@ -23,8 +23,7 @@ import com.example.tryingtodo.ui.theme.BottomBlue
 import com.example.tryingtodo.ui.theme.TextWhite
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-
-
+import com.example.tryingtodo.ui.theme.FullBlack
 
 
 @Composable
@@ -34,7 +33,7 @@ fun TopBar(modifier: Modifier = Modifier, name: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = modifier
-            .background(color = BottomBlue)
+            .background(color = Color.Black)
             .fillMaxWidth(1f)
             .height(height)
 
@@ -62,7 +61,7 @@ fun BottomNav(modifier: Modifier = Modifier, navController: NavController) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
-            .background(color = BottomBlue)
+            .background(color = Color.Black)
             .fillMaxWidth()
             .height(height)
     ) {

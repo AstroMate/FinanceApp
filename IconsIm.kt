@@ -33,6 +33,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.input.KeyboardType
+import com.example.tryingtodo.ui.theme.FullBlack
 
 
 data class IconsWithName(
@@ -70,12 +71,13 @@ fun IconCard(item: IconsWithName, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .size(60.dp)
                 .clip(CircleShape)
-                .background(color = Color.DarkGray)
+                .background(color = FullBlack)
                 .clickable { showDialog = true },
             contentScale = ContentScale.Crop
         )
         Text(
             text = item.name,
+            color = Color.White,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(top = 8.dp),
             textAlign = TextAlign.Center
