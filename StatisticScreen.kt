@@ -8,14 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -53,7 +47,7 @@ fun StatisticScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Total Income vs Total Expenses
+
             StatisticCard(
                 title = "Total Income vs Total Expenses",
                 value1 = "Income: \$${totalIncome.toInt()}",
@@ -62,7 +56,7 @@ fun StatisticScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Highest Income Category
+
             StatisticCard(
                 title = "Highest Income Category",
                 value1 = highestIncomeCategory?.key ?: "N/A",
@@ -71,7 +65,7 @@ fun StatisticScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Highest Expense Category
+
             StatisticCard(
                 title = "Highest Expense Category",
                 value1 = highestExpenseCategory?.key ?: "N/A",
@@ -80,7 +74,7 @@ fun StatisticScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Most Frequent Income Category
+
             StatisticCard(
                 title = "Most Frequent Income Category",
                 value1 = mostFrequentIncomeCategory ?: "N/A",
@@ -89,7 +83,7 @@ fun StatisticScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Most Frequent Expense Category
+
             StatisticCard(
                 title = "Most Frequent Expense Category",
                 value1 = mostFrequentExpenseCategory ?: "N/A",
@@ -98,7 +92,7 @@ fun StatisticScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Balance
+
             StatisticCard(
                 title = "Overall Balance",
                 value1 = "Balance: \$${balance.toInt()}",
@@ -108,7 +102,7 @@ fun StatisticScreen(modifier: Modifier = Modifier) {
     }
 }
 
-// A reusable card to show statistical info
+
 @Composable
 fun StatisticCard(title: String, value1: String, value2: String) {
     Box(

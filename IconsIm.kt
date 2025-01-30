@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.tryingtodo
 
 import androidx.compose.foundation.Image
@@ -30,10 +32,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.tryingtodo.ui.theme.FullBlack
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.*
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.TextStyle
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 data class IconsWithName(
@@ -73,7 +87,8 @@ fun IconCard(item: IconsWithName, modifier: Modifier = Modifier) {
                 .clip(CircleShape)
                 .background(color = FullBlack)
                 .clickable { showDialog = true },
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            colorFilter = ColorFilter.tint(Color.White)
         )
         Text(
             text = item.name,
@@ -113,51 +128,127 @@ fun InputDialog(
 ) {
     var amount by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = { showDatePicker = false }
+                ) {
+                    Text("OK", color = Color.White)
+                }
+            }
+        ) {
+            val datePickerState = rememberDatePickerState()
+            DatePicker(
+                state = datePickerState,
+                modifier = Modifier.background(Color.Black)
+            )
+            LaunchedEffect(datePickerState.selectedDateMillis) {
+                datePickerState.selectedDateMillis?.let {
+                    val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        .format(Date(it))
+                    date = selectedDate
+                }
+            }
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = Color.Black,
         title = {
-            Text(text = "Add Entry for $category")
+            Text(text = "Add Entry for $category", color = Color.White)
         },
         text = {
             Column {
                 OutlinedTextField(
                     value = amount,
                     onValueChange = {
-                        if (it.all { char -> char.isDigit() || char in listOf('-', '/', '+', '.', ',') }) {
+                        if (it.all { char ->
+                                char.isDigit() || char in listOf(
+                                    '-',
+                                    '/',
+                                    '+',
+                                    '.',
+                                    ','
+                                )
+                            }) {
                             amount = it
                         }
                     },
-                    label = { Text("Amount") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    label = { Text("Amount", color = Color.White) },
+                    textStyle = TextStyle(color = Color.White),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Black,
+                        unfocusedContainerColor = Color.Black,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedIndicatorColor = Color.White,
+                        unfocusedIndicatorColor = Color.White,
+                        cursorColor = Color.White
+                    )
                 )
 
+
                 Spacer(modifier = Modifier.height(16.dp))
+
                 OutlinedTextField(
                     value = date,
-                    onValueChange = {
-                        if (it.all { char -> char.isDigit() || char in listOf('-', '/', '+', '.', ',') }) {
-                            date = it
-                        }
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text("Date (YYYY-MM-DD)", color = Color.White) },
+                    textStyle = TextStyle(color = Color.White),
+                    trailingIcon = {
+                        Image(
+                            painter = painterResource(R.drawable.calendar),
+                            contentDescription = "Pick Date",
+                            modifier = Modifier
+                                .clickable { showDatePicker = true }
+                                .width(30.dp)
+                                .height(30.dp),
+                            colorFilter = ColorFilter.tint(Color.White)
+                        )
                     },
-                    label = { Text("Date (YYYY-MM-DD)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Black,
+                        unfocusedContainerColor = Color.Black,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedIndicatorColor = Color.White,
+                        unfocusedIndicatorColor = Color.White,
+                        cursorColor = Color.White
+                    )
                 )
+
             }
         },
         confirmButton = {
-            Button(onClick = {
-                if (amount.isNotEmpty() && date.isNotEmpty()) {
-                    onSave(amount.toDouble(), date)
-                }
-            }) {
+            Button(
+                onClick = {
+                    if (amount.isNotEmpty() && date.isNotEmpty()) {
+                        onSave(amount.toDouble(), date)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
+            ) {
                 Text("Save")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text("Cancel", color = Color.White)
             }
         }
     )
 }
+
