@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,7 +30,7 @@ fun ExpensesScreen(modifier: Modifier = Modifier) {
 
     LaunchedEffect(Unit) {
         while (true) {
-            kotlinx.coroutines.delay(1000) // Refresh every second
+            kotlinx.coroutines.delay(1000)
             refreshExpensesList()
         }
     }
@@ -64,7 +66,14 @@ fun ExpensesScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            ExpensesList(expensesData = expensesList)
+            ExpensesList(
+                expensesData = expensesList,
+                onDelete = { id ->
+                    db.deleteExpenseById(id)
+                    refreshExpensesList()
+                }
+            )
+
         }
     }
 }
@@ -86,7 +95,7 @@ fun ExpensesCategory() {
 fun ExpensesCategory2() {
     val items = listOf(
         IconsWithName(name = "Education", iconRes = R.drawable.education),
-        IconsWithName(name = "Loan", iconRes = R.drawable.loan),
+        IconsWithName(name = "Loan", iconRes = R.drawable.food),
         IconsWithName(name = "Health", iconRes = R.drawable.health),
         IconsWithName(name = "Entertainment", iconRes = R.drawable.happy)
     )
@@ -95,7 +104,11 @@ fun ExpensesCategory2() {
 
 
 @Composable
-fun ExpensesList(modifier: Modifier = Modifier, expensesData: List<Map<String, Any>>) {
+fun ExpensesList(
+    modifier: Modifier = Modifier,
+    expensesData: List<Map<String, Any>>,
+    onDelete: (Int) -> Unit
+) {
     Box(
         modifier
             .fillMaxWidth()
@@ -114,15 +127,21 @@ fun ExpensesList(modifier: Modifier = Modifier, expensesData: List<Map<String, A
 
             LazyColumn {
                 items(expensesData) { item ->
-                    ExpenseItem(item)
+                    ExpenseItem(item = item, onDelete = onDelete)
                 }
             }
         }
     }
 }
 
+
 @Composable
-fun ExpenseItem(item: Map<String, Any>) {
+fun ExpenseItem(
+    item: Map<String, Any>,
+    onDelete: (Int) -> Unit
+) {
+    val id = item["id"] as Int
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -134,11 +153,23 @@ fun ExpenseItem(item: Map<String, Any>) {
             modifier = Modifier
                 .padding(12.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(item["category"].toString(), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text("${item["amount"]} $", color = Color.Yellow, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(item["date"].toString(), color = Color.LightGray, fontSize = 14.sp)
+            Column {
+                Text(item["category"].toString(), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("${item["amount"]} $", color = Color.Yellow, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(item["date"].toString(), color = Color.LightGray, fontSize = 14.sp)
+            }
+
+            IconButton(onClick = { onDelete(id) }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = Color.Red
+                )
+            }
         }
     }
 }
+

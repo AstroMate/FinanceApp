@@ -153,5 +153,14 @@ class DBSupport(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         db.close()
         return data
     }
+    fun deleteExpenseById(id: Int): Int {
+        val db = writableDatabase
+        return db.delete(TABLE_EXPENSES, "$COLUMN_EXPENSES_ID=?", arrayOf(id.toString()))
+    }
+
+    fun deleteIncomeById(id: Int): Int {
+        val db = writableDatabase
+        return db.delete(TABLE_INCOME, "$COLUMN_EXPENSES_ID=?", arrayOf(id.toString()))
+    }
 
 }

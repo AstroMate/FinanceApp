@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tryingtodo.ui.theme.FullBlack
+import kotlinx.coroutines.delay
 
 @Composable
 fun IncomeScreen(modifier: Modifier = Modifier) {
@@ -28,7 +31,7 @@ fun IncomeScreen(modifier: Modifier = Modifier) {
 
     LaunchedEffect(Unit) {
         while (true) {
-            kotlinx.coroutines.delay(1000)
+            delay(1000)
             refreshIncomeList()
         }
     }
@@ -44,10 +47,14 @@ fun IncomeScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopBar(name = "Income")
+
             Spacer(modifier = Modifier.height(10.dp))
+
             IncomeCategory()
             IncomeCategory2()
+
             Spacer(modifier = Modifier.height(15.dp))
+
             Button(
                 onClick = refreshIncomeList,
                 modifier = Modifier.fillMaxWidth(0.8f),
@@ -55,8 +62,16 @@ fun IncomeScreen(modifier: Modifier = Modifier) {
             ) {
                 Text("Refresh Income", fontWeight = FontWeight.Bold, color = Color.White)
             }
+
             Spacer(modifier = Modifier.height(15.dp))
-            IncomeList(incomeData = incomeList)
+
+            IncomeList(
+                incomeData = incomeList,
+                onDelete = { id ->
+                    db.deleteIncomeById(id)
+                    refreshIncomeList()
+                }
+            )
         }
     }
 }
@@ -72,21 +87,24 @@ fun IncomeCategory() {
     IconsRow(iconsList = items)
 }
 
-
 @Composable
 fun IncomeCategory2() {
     val items = listOf(
         IconsWithName(name = "Rental", iconRes = R.drawable.rent),
         IconsWithName(name = "P2P", iconRes = R.drawable.p2p),
-        IconsWithName(name = "Market", iconRes = R.drawable.market),
+        IconsWithName(name = "Market", iconRes = R.drawable.market)
     )
     IconsRow(iconsList = items)
 }
 
 @Composable
-fun IncomeList(modifier: Modifier = Modifier, incomeData: List<Map<String, Any>>) {
+fun IncomeList(
+    modifier: Modifier = Modifier,
+    incomeData: List<Map<String, Any>>,
+    onDelete: (Int) -> Unit
+) {
     Box(
-        modifier = modifier
+        modifier
             .fillMaxWidth()
             .padding(10.dp)
             .background(Color.DarkGray.copy(alpha = 0.3f), shape = RoundedCornerShape(16.dp))
@@ -100,9 +118,10 @@ fun IncomeList(modifier: Modifier = Modifier, incomeData: List<Map<String, Any>>
                 color = Color.White,
                 modifier = Modifier.padding(bottom = 10.dp)
             )
+
             LazyColumn {
                 items(incomeData) { item ->
-                    IncomeItem(item)
+                    IncomeItem(item = item, onDelete = onDelete)
                 }
             }
         }
@@ -110,7 +129,12 @@ fun IncomeList(modifier: Modifier = Modifier, incomeData: List<Map<String, Any>>
 }
 
 @Composable
-fun IncomeItem(item: Map<String, Any>) {
+fun IncomeItem(
+    item: Map<String, Any>,
+    onDelete: (Int) -> Unit
+) {
+    val id = item["id"] as Int
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,11 +146,22 @@ fun IncomeItem(item: Map<String, Any>) {
             modifier = Modifier
                 .padding(12.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(item["category"].toString(), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text("${item["amount"]} $", color = Color.Yellow, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(item["date"].toString(), color = Color.LightGray, fontSize = 14.sp)
+            Column {
+                Text(item["category"].toString(), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("${item["amount"]} $", color = Color.Yellow, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(item["date"].toString(), color = Color.LightGray, fontSize = 14.sp)
+            }
+
+            IconButton(onClick = { onDelete(id) }) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = Color.Red
+                )
+            }
         }
     }
 }
